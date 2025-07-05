@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataGPT Architecture Transformation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .presentation-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            margin: 20px 0;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            min-height: 80vh;
+            position: relative;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-header {
+            text-align: center;
+            margin-bottom: 50px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        .slide-title {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .slide-subtitle {
+            font-size: 1.3rem;
+            color: #666;
+            font-weight: 300;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* Slide 1 - Analysis */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .analysis-card {
+            background: linear-gradient(135deg, #f8f9ff, #e8eeff);
+            border-radius: 15px;
+            padding: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .analysis-card h3 {
+            color: #667eea;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .analysis-card ul {
+            list-style: none;
+        }
+
+        .analysis-card li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .analysis-card li::before {
+            content: "✅";
+            font-size: 1.2rem;
+        }
+
+        .limitation-card li::before {
+            content: "⚠️";
+        }
+
+        /* Slide 2 - User Flow */
+        .flow-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .mermaid {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        /* Slide 3 & 4 - Architecture Diagrams */
+        .architecture-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .architecture-info {
+            background: linear-gradient(135deg, #f0f4ff, #e0e8ff);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid #667eea;
+        }
+
+        .architecture-info h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .metrics {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Slide 5 - Comparison Table */
+        .comparison-table {
+            margin-top: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 18px 20px;
+            border-bottom: 1px solid #eee;
+            font-size: 1rem;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9ff;
+        }
+
+        .comparison-table tr:hover {
+            background: #e8eeff;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .current-value {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .scalable-value {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .footer-note {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0f4ff, #e0e8ff);
+            border-radius: 15px;
+            border: 2px solid #667eea;
+        }
+
+        .footer-note h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Current Architecture Analysis -->
+        <div class="slide active">
+            <div class="slide-number">1 / 5</div>
+            <div class="slide-header">
+                <h1 class="slide-title">Current Architecture Analysis</h1>
+                <p class="slide-subtitle">DataGPT Flask Application - Strengths & Limitations</p>
+            </div>
+            
+            <div class="analysis-grid">
+                <div class="analysis-card">
+                    <h3>✅ Current Strengths</h3>
+                    <ul>
+                        <li>Rapid Development & Deployment</li>
+                        <li>Feature Complete MVP</li>
+                        <li>Multi-format File Support</li>
+                        <li>AI-Powered Query Generation</li>
+                        <li>Interactive Data Visualization</li>
+                        <li>Low Infrastructure Cost (~$100/month)</li>
+                        <li>Simple Debugging & Maintenance</li>
+                        <li>Proven Product-Market Fit</li>
+                    </ul>
+                </div>
+                
+                <div class="analysis-card limitation-card">
+                    <h3>⚠️ Scalability Limitations</h3>
+                    <ul>
+                        <li>Maximum 1-5 Concurrent Users</li>
+                        <li>Single Point of Failure</li>
+                        <li>2-30 Second Response Times</li>
+                        <li>File-based SQLite Storage</li>
+                        <li>Synchronous Processing Blocks UI</li>
+                        <li>No Load Distribution</li>
+                        <li>Limited Monitoring & Alerting</li>
+                        <li>Local File Storage Only</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-note">
+                <h4>🎯 Key Insight</h4>
+                <p>Strong foundation with proven features, but architecture needs transformation to serve enterprise customers and scale globally.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: User Flow Diagram -->
+        <div class="slide">
+            <div class="slide-number">2 / 6</div>
+            <div class="slide-header">
+                <h1 class="slide-title">User Journey Flow</h1>
+                <p class="slide-subtitle">From Data Upload to Insights - Optimized Experience</p>
+            </div>
+            
+            <div class="flow-container">
+                <img src="user flow.png" alt="User Flow Diagram" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"/>
+                
+                <div class="metrics">
+                    <div class="metric">
+                        <div class="metric-value">< 5s</div>
+                        <div class="metric-label">File Upload</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">< 2s</div>
+                        <div class="metric-label">AI Response</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">< 1s</div>
+                        <div class="metric-label">Visualization</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Current Architecture Diagram -->
+        <div class="slide">
+            <div class="slide-number">3 / 6</div>
+            <div class="slide-header">
+                <h1 class="slide-title">Current Architecture</h1>
+                <p class="slide-subtitle">Single Instance Flask Application</p>
+            </div>
+            
+            <div class="architecture-container">
+                <img src="current architecture.png" alt="Current Architecture Diagram" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"/>
+                
+                <div class="architecture-info">
+                    <h3>🏠 Monolithic Architecture Characteristics</h3>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value">1-5</div>
+                            <div class="metric-label">Max Users</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">2-30s</div>
+                            <div class="metric-label">Response Time</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">1</div>
+                            <div class="metric-label">Single Instance</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">$100</div>
+                            <div class="metric-label">Monthly Cost</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Proposed Scalable Architecture -->
+        <div class="slide">
+            <div class="slide-number">4 / 6</div>
+            <div class="slide-header">
+                <h1 class="slide-title">Proposed Scalable Architecture</h1>
+                <p class="slide-subtitle">Cloud-Native Microservices for Global Scale</p>
+            </div>
+            
+            <div class="architecture-container">
+                <img src="scalable architecture.png" alt="Scalable Architecture Diagram" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"/>
+                
+                <div class="architecture-info">
+                    <h3>☁️ Distributed Architecture Benefits</h3>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value">1M+</div>
+                            <div class="metric-label">Concurrent Users</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">&lt;2s</div>
+                            <div class="metric-label">Response Time</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">99.9%</div>
+                            <div class="metric-label">Uptime SLA</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">Auto</div>
+                            <div class="metric-label">Scaling</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Tools & Technologies -->
+        <div class="slide">
+            <div class="slide-number">5 / 6</div>
+            <div class="slide-header">
+                <h1 class="slide-title">🛠️ Tools & Technology</h1>
+                <p class="slide-subtitle">Current Technology Stack & Implementation</p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px;">
+                <div class="analysis-card">
+                    <h3>🎨 Frontend Technologies</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #e34c26;">🌐</span> HTML5, CSS3, JavaScript
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #7952b3;">🎨</span> Bootstrap Framework
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #339af0;">📊</span> Plotly.js for Visualization
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #228be6;">🎯</span> Font Awesome Icons
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="analysis-card">
+                    <h3>⚙️ Backend Framework</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #3776ab;">🐍</span> Python Flask Framework
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #fd7e14;">🔧</span> Werkzeug WSGI Utilities
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #20c997;">🚀</span> Single Instance Deployment
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="analysis-card">
+                    <h3>📊 Data Processing</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #150458;">🐼</span> Pandas for Data Manipulation
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #013220;">📋</span> SQL Generation Logic
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #217c7e;">📈</span> Multi-format File Support
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="analysis-card">
+                    <h3>🤖 AI & Storage</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #d97706;">🧠</span> Anthropic Claude API
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #003d82;">🗃️</span> SQLite Database
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #6f42c1;">📂</span> Local File System
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-note" style="margin-top: 40px;">
+                <h4>🔄 Data Flow Architecture</h4>
+                <p><strong>Upload ➝ Schema Detection ➝ Claude AI ➝ SQL Generation ➝ Visualization</strong></p>
+                <div style="margin-top: 15px; padding: 15px; background: #f8f9ff; border-radius: 8px; border-left: 4px solid #667eea;">
+                    💡 <strong>Key Integration Points:</strong> Solid connections show direct tool dependencies; async processing handled through background workers for optimal performance.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Comparison Table -->
+        <div class="slide">
+            <div class="slide-number">6 / 6</div>
+            <div class="slide-header">
+                <h1 class="slide-title">Architecture Transformation</h1>
+                <p class="slide-subtitle">Key Differences & Improvements</p>
+            </div>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Current Architecture</th>
+                            <th>Scalable Architecture</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Concurrent Users</strong></td>
+                            <td class="current-value">1-5 Users</td>
+                            <td class="scalable-value">1M+ Users</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Application Structure</strong></td>
+                            <td class="current-value">Single Flask Monolith</td>
+                            <td class="scalable-value">React + FastAPI Microservices</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Database</strong></td>
+                            <td class="current-value">SQLite Files</td>
+                            <td class="scalable-value">PostgreSQL + ClickHouse + Redis</td>
+                        </tr>
+                        <tr>
+                            <td><strong>File Storage</strong></td>
+                            <td class="current-value">Local File System</td>
+                            <td class="scalable-value">AWS S3 with CDN</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AI Integration</strong></td>
+                            <td class="current-value">Single Anthropic API</td>
+                            <td class="scalable-value">Multi-provider (Claude + GPT)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Response Time</strong></td>
+                            <td class="current-value">2-30 seconds</td>
+                            <td class="scalable-value">&lt;2 seconds</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Processing</strong></td>
+                            <td class="current-value">Synchronous Blocking</td>
+                            <td class="scalable-value">Async Background Workers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td class="current-value">Vertical Only</td>
+                            <td class="scalable-value">Auto Horizontal Scaling</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Availability</strong></td>
+                            <td class="current-value">Single Point of Failure</td>
+                            <td class="scalable-value">99.9% Uptime SLA</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Monitoring</strong></td>
+                            <td class="current-value">Basic Logging</td>
+                            <td class="scalable-value">Datadog + Sentry + New Relic</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Security</strong></td>
+                            <td class="current-value">No Authentication</td>
+                            <td class="scalable-value">Auth0 + WAF + Encryption</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Monthly Cost</strong></td>
+                            <td class="current-value">~$100</td>
+                            <td class="scalable-value">~$65,800 (at 1M users)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="footer-note">
+                <h4>🚀 Transformation Impact</h4>
+                <p>This architecture evolution enables DataGPT to serve enterprise customers globally with enterprise-grade performance, reliability, and security while maintaining all current innovative features.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-btn active" onclick="showSlide(0)">Analysis</button>
+        <button class="nav-btn" onclick="showSlide(1)">User Flow</button>
+        <button class="nav-btn" onclick="showSlide(2)">Current</button>
+        <button class="nav-btn" onclick="showSlide(3)">Scalable</button>
+        <button class="nav-btn" onclick="showSlide(4)">Tech Stack</button>
+        <button class="nav-btn" onclick="showSlide(5)">Comparison</button>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const navBtns = document.querySelectorAll('.nav-btn');
+
+        function showSlide(index) {
+            // Hide all slides
+            slides.forEach(slide => slide.classList.remove('active'));
+            navBtns.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected slide
+            slides[index].classList.add('active');
+            navBtns[index].classList.add('active');
+            
+            currentSlide = index;
+            
+            // Re-render mermaid diagrams when slide becomes visible
+            setTimeout(() => {
+                mermaid.init(undefined, slides[index].querySelectorAll('.mermaid'));
+            }, 100);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            } else if (e.key === 'ArrowLeft' && currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        });
+
+        // Initialize first slide
+        showSlide(0);
+    </script>
+</body>
+</html>
